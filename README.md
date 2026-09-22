@@ -33,22 +33,50 @@
 15. Run the program on the S32K144 board.
 
 ---
-## OUTPUT
+## CODE
+```
+#include "sdk_project_config.h"
+void delay(volatile int ms){
+	while(ms--);
+}
+int main(void)
+{
+	int brightness=0;
 
+	CLOCK_DRV_Init(&clockMan1_InitConfig0);
+	PINS_DRV_Init(NUM_OF_CONFIGURED_PINS0,g_pin_mux_InitConfigArr0);
+    PWM_Init(&pwm_pal_1_instance,&pwm_pal_1_configs);
 
+//    PWM_UpdateDuty(&pwm_pal_1_instance,0u,0);
+    while(1)
+    {
+    	if(!(PINS_DRV_ReadPins(PTC) & (1<<12)))
+    	{
+    	    brightness++;
 
+    	    switch(brightness)
+    	    {
+    	        case 0: PWM_UpdateDuty(&pwm_pal_1_instance,0u,0); break;
+    	        case 1: PWM_UpdateDuty(&pwm_pal_1_instance,0u,250); break;
+    	        case 2: PWM_UpdateDuty(&pwm_pal_1_instance,0u,500); break;
+    	        case 3: PWM_UpdateDuty(&pwm_pal_1_instance,0u,750); break;
+    	        case 4: PWM_UpdateDuty(&pwm_pal_1_instance,0u,1000); break;
+    	        case 5: PWM_UpdateDuty(&pwm_pal_1_instance,0u,750); break;
+    	        case 6: PWM_UpdateDuty(&pwm_pal_1_instance,0u,500); break;
+    	        case 7: PWM_UpdateDuty(&pwm_pal_1_instance,0u,250); break;
 
+    	        default:
+    	            PWM_UpdateDuty(&pwm_pal_1_instance,0u,0);
+    	            brightness = 0;
+    	            break;
+    	    }
 
-
-
-
-
-
-
-
-
-
-
+    	    while(!(PINS_DRV_ReadPins(PTC) & (1<<12)));  // Wait for release
+    	    OSIF_TimeDelay(50);                          // Debounce
+    	}
+    }
+}
+```
 
 
 ---
